@@ -1,0 +1,49 @@
+package scheduler
+
+import (
+	"context"
+	"github.com/ch-rollup/ch-rollup/pkg/database"
+	"github.com/ch-rollup/ch-rollup/pkg/types"
+	"golang.org/x/exp/maps"
+	"time"
+)
+
+const (
+	tempTablePrefix = "_temp"
+)
+
+func (s *Scheduler) rollUp(ctx context.Context) error {
+	for _, task := range s.getTasks() {
+		for _, rollUpSetting := range task.RollUpSettings {
+			err := s.db.RollUp(ctx, database.RollUpOptions{
+				DataBase:     task.DataBase,
+				Table:        task.Table,
+				TempTable:    task.Table + tempTablePrefix,
+				PartitionKey: task.PartitionKey,
+				Columns:      prepareRollUpColumns(task.ColumnSettings, rollUpSetting.ColumnSettings),
+				Duration:     rollUpSetting.RollUpDuration,
+				After:        rollUpSetting.RollUpAfter,
+				Interval:     time.Hour, // TODO: add interval settings
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func prepareRollUpColumns(globalColumnSettings, currentColumnSettings []types.ColumnSetting) []types.ColumnSetting {
+	result := make(map[string]types.ColumnSetting, len(globalColumnSettings)+len(currentColumnSettings))
+
+	for _, columnSettings := range globalColumnSettings {
+		result[columnSettings.Name] = columnSettings
+	}
+
+	for _, columnSettings := range currentColumnSettings {
+		result[columnSettings.Name] = columnSettings
+	}
+
+	return maps.Values(result)
+}
