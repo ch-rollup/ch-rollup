@@ -5,8 +5,10 @@ import (
 	"strconv"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
+	"go.uber.org/multierr"
 )
 
+// ConnectOptions ...
 type ConnectOptions struct {
 	Address     string
 	Username    string
@@ -14,6 +16,7 @@ type ConnectOptions struct {
 	ClusterName string
 }
 
+// Connect returns new Cluster
 func Connect(ctx context.Context, opts ConnectOptions) (*Cluster, error) {
 	conn, err := openConnection(ctx, opts.Address, opts.Username, opts.Password)
 	if err != nil {
@@ -80,7 +83,11 @@ func getShardsAddresses(ctx context.Context, conn clickhouse.Conn, clusterName s
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if rowsCloseErr := rows.Close(); rowsCloseErr != nil {
+			err = multierr.Append(err, rowsCloseErr)
+		}
+	}()
 
 	var result []string
 

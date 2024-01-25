@@ -1,21 +1,19 @@
+// Package time is a utils for working with time.
 package time
 
 import "time"
 
+// SecondsFromDuration returns duration in seconds.
 func SecondsFromDuration(dur time.Duration) int {
 	return int(dur / time.Second)
 }
 
-func ByDurationBoundaries(t time.Time, d time.Duration) (start time.Time, end time.Time) {
-	start = t.Truncate(d)
-
-	return start, start.Add(d)
-}
-
+// Range represents time range with from and to.
 type Range struct {
 	From, To time.Time
 }
 
+// SplitTimeRangeByInterval returns split by interval time ranges.
 func SplitTimeRangeByInterval(timeRange Range, interval time.Duration) []Range {
 	// TODO: refac
 

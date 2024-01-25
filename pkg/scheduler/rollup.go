@@ -2,10 +2,12 @@ package scheduler
 
 import (
 	"context"
+	"time"
+
+	"golang.org/x/exp/maps"
+
 	"github.com/ch-rollup/ch-rollup/pkg/database"
 	"github.com/ch-rollup/ch-rollup/pkg/types"
-	"golang.org/x/exp/maps"
-	"time"
 )
 
 const (

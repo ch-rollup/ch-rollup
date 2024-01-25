@@ -1,3 +1,4 @@
+// Package app implements rollup as app.
 package app
 
 import (
@@ -11,17 +12,19 @@ import (
 	"github.com/ch-rollup/ch-rollup/pkg/scheduler"
 )
 
+// RunOptions is an options for Run
 type RunOptions struct {
 	SecretProvider secret.Provider
 	ConfigProvider config.Provider
 	Logger         Logger
 }
 
+// Run app with provided RunOptions
 func Run(ctx context.Context, opts RunOptions) error {
 	logger := opts.Logger
 
-	secrets := opts.SecretProvider.GetSecrets()
-	cfg := opts.ConfigProvider.GetConfig()
+	secrets := opts.SecretProvider.Get()
+	cfg := opts.ConfigProvider.Get()
 
 	chCluster, err := cluster.Connect(ctx, cluster.ConnectOptions{
 		Address:     cfg.ClickHouse.Address,

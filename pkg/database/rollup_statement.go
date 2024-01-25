@@ -2,11 +2,12 @@ package database
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/ch-rollup/ch-rollup/pkg/types"
 	sliceUtils "github.com/ch-rollup/ch-rollup/pkg/utils/slice"
 	timeUtils "github.com/ch-rollup/ch-rollup/pkg/utils/time"
-	"strings"
-	"time"
 )
 
 type generateRollUpStatementOptions struct {

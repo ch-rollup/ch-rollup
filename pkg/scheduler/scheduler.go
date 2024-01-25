@@ -1,14 +1,18 @@
+// Package scheduler implements ch-rollup scheduler.
 package scheduler
 
 import (
 	"context"
-	"github.com/ch-rollup/ch-rollup/pkg/database"
-	"github.com/ch-rollup/ch-rollup/pkg/types"
+	"errors"
 	"sync"
 	"time"
+
+	"github.com/ch-rollup/ch-rollup/pkg/database"
+	"github.com/ch-rollup/ch-rollup/pkg/types"
 )
 
-type dataBase interface {
+// DataBase ...
+type DataBase interface {
 	RollUp(ctx context.Context, opts database.RollUpOptions) error
 }
 
@@ -16,13 +20,15 @@ const (
 	defaultSchedulerInterval = time.Hour
 )
 
+// Scheduler of ch-rollup.
 type Scheduler struct {
 	tasks []types.Task
-	db    dataBase
+	db    DataBase
 	lock  sync.RWMutex
 }
 
-func New(ctx context.Context, db dataBase, tasks types.Tasks) (*Scheduler, error) {
+// New returns new Scheduler.
+func New(ctx context.Context, db DataBase, tasks types.Tasks) (*Scheduler, error) {
 	if err := tasks.Validate(); err != nil {
 		return nil, err
 	}
@@ -39,7 +45,17 @@ func New(ctx context.Context, db dataBase, tasks types.Tasks) (*Scheduler, error
 	return s, nil
 }
 
+var (
+	// ErrSchedulerNotInitialized ...
+	ErrSchedulerNotInitialized = errors.New("scheduler not initialized")
+)
+
+// Run Scheduler.
 func (s *Scheduler) Run(ctx context.Context) (<-chan Event, error) {
+	if s == nil {
+		return nil, ErrSchedulerNotInitialized
+	}
+
 	eventChan := make(chan Event)
 
 	go func() {

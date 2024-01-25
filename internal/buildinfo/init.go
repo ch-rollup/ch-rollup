@@ -13,6 +13,7 @@ var (
 	info *Info
 )
 
+// Get Info.
 func Get() *Info {
 	return info
 }

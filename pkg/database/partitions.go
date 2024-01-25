@@ -3,6 +3,9 @@ package database
 import (
 	"context"
 	"fmt"
+
+	"go.uber.org/multierr"
+
 	"github.com/ch-rollup/ch-rollup/pkg/database/cluster"
 )
 
@@ -21,7 +24,11 @@ func getPartitionsOnShard(ctx context.Context, shard cluster.Shard, database, ta
 
 	var result []string
 
-	defer rows.Close()
+	defer func() {
+		if rowsCloseErr := rows.Close(); rowsCloseErr != nil {
+			err = multierr.Append(err, rowsCloseErr)
+		}
+	}()
 
 	for rows.Next() {
 		var partition string

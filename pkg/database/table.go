@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+
 	"github.com/ch-rollup/ch-rollup/pkg/database/cluster"
 )
 

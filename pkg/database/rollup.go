@@ -4,14 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
+	"go.uber.org/multierr"
+
 	"github.com/ch-rollup/ch-rollup/pkg/database/cluster"
 	"github.com/ch-rollup/ch-rollup/pkg/types"
 	timeUtils "github.com/ch-rollup/ch-rollup/pkg/utils/time"
-	"go.uber.org/multierr"
-
-	"time"
 )
 
+// RollUpOptions ...
 type RollUpOptions struct {
 	DataBase     string
 	Table        string
@@ -24,10 +26,12 @@ type RollUpOptions struct {
 }
 
 var (
+	// ErrBadRollUpOptions ...
 	ErrBadRollUpOptions = errors.New("bad ErrBadRollUpOptions")
 )
 
-func (opts *RollUpOptions) Validate() error {
+// Validate RollUpOptions.
+func (opts RollUpOptions) Validate() error {
 	if opts.DataBase == "" {
 		return fmt.Errorf("data base must be not empty: %w", ErrBadRollUpOptions)
 	}
@@ -69,6 +73,7 @@ func (opts *RollUpOptions) Validate() error {
 	return nil
 }
 
+// RollUp Database with RollUpOptions.
 func (db *Database) RollUp(ctx context.Context, opts RollUpOptions) error {
 	if err := opts.Validate(); err != nil {
 		return fmt.Errorf("fail to validate RollUpOptions: %w", err)
@@ -84,6 +89,7 @@ func (db *Database) RollUp(ctx context.Context, opts RollUpOptions) error {
 	return nil
 }
 
+// RollUpShard cluster.Shard with RollUpOptions.
 func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (err error) {
 	if err = opts.Validate(); err != nil {
 		return fmt.Errorf("fail to validate RollUpOptions: %w", err)

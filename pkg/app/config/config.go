@@ -1,3 +1,4 @@
+// Package config defined Config and it Provider.
 package config
 
 import (
@@ -7,19 +8,23 @@ import (
 	"github.com/ch-rollup/ch-rollup/pkg/types"
 )
 
+// ClickHouse ...
 type ClickHouse struct {
 	Address     string
 	UserName    string
 	ClusterName string
 }
 
+// Config ...
 type Config struct {
 	ClickHouse ClickHouse
 	Tasks      []types.Task
 }
 
+// ErrBadConfig ...
 var ErrBadConfig = errors.New("bad config")
 
+// Validate Config.
 func (c Config) Validate() error {
 	if c.ClickHouse.Address == "" {
 		return fmt.Errorf("address must be not empty: %w", ErrBadConfig)

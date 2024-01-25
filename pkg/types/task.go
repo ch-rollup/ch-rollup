@@ -1,3 +1,4 @@
+// Package types is a general models for ch-rollup.
 package types
 
 import (
@@ -5,8 +6,10 @@ import (
 	"time"
 )
 
+// Tasks ...
 type Tasks []Task
 
+// Validate Tasks.
 func (t Tasks) Validate() error {
 	for _, task := range t {
 		if err := task.Validate(); err != nil {
@@ -17,6 +20,7 @@ func (t Tasks) Validate() error {
 	return nil
 }
 
+// Task ...
 type Task struct {
 	DataBase       string
 	Table          string
@@ -25,12 +29,14 @@ type Task struct {
 	ColumnSettings []ColumnSetting
 }
 
+// RollUpSetting ...
 type RollUpSetting struct {
 	RollUpAfter    time.Duration
 	RollUpDuration time.Duration
 	ColumnSettings []ColumnSetting
 }
 
+// ColumnSetting ...
 type ColumnSetting struct {
 	Name                  string
 	AutoResolveExpression bool // TODO: implement auto resolve expression
@@ -38,6 +44,7 @@ type ColumnSetting struct {
 	Expression            string
 }
 
+// Validate Task.
 func (t *Task) Validate() error {
 	if t.Table == "" {
 		return fmt.Errorf("field Table must be not empty")
@@ -80,6 +87,7 @@ func (t *Task) Validate() error {
 	return nil
 }
 
+// Validate RollUpSetting.
 func (rs *RollUpSetting) Validate(rollUpTimeColumnName string) error {
 	if rs.RollUpAfter <= 0 {
 		return fmt.Errorf("field RollUpAfter must be not empty")
@@ -102,6 +110,7 @@ func (rs *RollUpSetting) Validate(rollUpTimeColumnName string) error {
 	return nil
 }
 
+// Validate ColumnSetting.
 func (cs *ColumnSetting) Validate() error {
 	if cs.Name == "" {
 		return fmt.Errorf("field Name must be not empty")

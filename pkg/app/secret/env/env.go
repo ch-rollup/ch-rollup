@@ -1,3 +1,4 @@
+// Package env implements Env secret.Provider.
 package env
 
 import (
@@ -11,10 +12,12 @@ const (
 	clickHousePasswordKey = "CLICKHOUSE_PASSWORD"
 )
 
+// Env implementation of secret.Provider.
 type Env struct {
 	secrets secret.Secrets
 }
 
+// New returns new Env secret.Provider.
 func New() (*Env, error) {
 	clickHousePassword, ok := os.LookupEnv(clickHousePasswordKey)
 	if !ok {
@@ -28,6 +31,7 @@ func New() (*Env, error) {
 	}, nil
 }
 
-func (e *Env) GetSecrets() secret.Secrets {
+// Get secret.Secrets.
+func (e *Env) Get() secret.Secrets {
 	return e.secrets
 }

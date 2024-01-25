@@ -1,3 +1,4 @@
+// Package buildinfo returns info about ch-rollup build.
 package buildinfo
 
 import (
