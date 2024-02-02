@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -102,17 +103,20 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 		Duration: opts.Duration,
 	})
 	if err != nil {
-		// TODO: check error
-		if err = createRollUpMetaInfo(ctx, shard, time.Now().Truncate(opts.PartitionKey), opts); err != nil {
-			return err
+		if errors.Is(err, sql.ErrNoRows) {
+			if err = createRollUpMetaInfo(ctx, shard, time.Now().Truncate(opts.PartitionKey), opts); err != nil {
+				return err
+			}
+
+			// TODO: think about report error to logger
+			return nil
 		}
 
-		return nil
+		return err
 	}
 
 	rollUpTo := time.Now().Add(-opts.After).Truncate(opts.PartitionKey)
 	if rollUpTo.Before(latestRollUp) {
-		// TODO: add error here
 		return nil
 	}
 
