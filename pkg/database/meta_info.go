@@ -9,7 +9,7 @@ import (
 )
 
 type rollUpMetaInfo struct {
-	DataBase  string
+	Database  string
 	Table     string
 	After     time.Duration
 	Duration  time.Duration
@@ -17,7 +17,7 @@ type rollUpMetaInfo struct {
 }
 
 type rollUpMetaInfoKey struct {
-	DataBase string
+	Database string
 	Table    string
 	After    time.Duration
 	Duration time.Duration
@@ -36,7 +36,7 @@ func getLatestRollUpByKeyOnShard(ctx context.Context, shard cluster.Shard, key r
 		    database = $1 AND table = $2 AND after_sec = $3 AND duration_sec = $4 
 		GROUP BY 
 		    database, table, after_sec, duration_sec;
-	`, key.DataBase, key.Table, timeUtils.SecondsFromDuration(key.After), timeUtils.SecondsFromDuration(key.Duration)).Scan(&rollUpsAt)
+	`, key.Database, key.Table, timeUtils.SecondsFromDuration(key.After), timeUtils.SecondsFromDuration(key.Duration)).Scan(&rollUpsAt)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -52,5 +52,5 @@ func addRollUpMetaInfoOnShard(ctx context.Context, shard cluster.Shard, metaInfo
 				rollup_meta_info(database, table, after_sec, duration_sec, roll_ups_at)
 			VALUES 
 			    (?, ?, ?, ?, ?)
-	`, metaInfo.DataBase, metaInfo.Table, timeUtils.SecondsFromDuration(metaInfo.After), timeUtils.SecondsFromDuration(metaInfo.Duration), metaInfo.RollUpsAt)
+	`, metaInfo.Database, metaInfo.Table, timeUtils.SecondsFromDuration(metaInfo.After), timeUtils.SecondsFromDuration(metaInfo.Duration), metaInfo.RollUpsAt)
 }

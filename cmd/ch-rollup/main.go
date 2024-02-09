@@ -1,4 +1,4 @@
-// Package main is a ch-rollup start point.
+// Package main is an entrypoint of the application.
 package main
 
 import (

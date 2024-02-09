@@ -18,7 +18,9 @@ type ClickHouse struct {
 // Config ...
 type Config struct {
 	ClickHouse ClickHouse
-	Tasks      []types.Task
+
+	// TODO: rename this field and underlying type coz they're misleads the end user.
+	Tasks []types.Task
 }
 
 // ErrBadConfig ...

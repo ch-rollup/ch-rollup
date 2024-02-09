@@ -56,7 +56,7 @@ func bindClickHouseFromJSON(clickHouse clickHouseJSON) config.ClickHouse {
 
 func bindTaskFromJSON(task taskJSON) types.Task {
 	return types.Task{
-		DataBase:       task.DataBase,
+		Database:       task.DataBase,
 		Table:          task.Table,
 		PartitionKey:   task.PartitionKey.Duration,
 		RollUpSettings: sliceUtils.ConvertFunc(task.RollUpSettings, bindRollUpSettingFromJSON),

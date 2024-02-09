@@ -11,7 +11,7 @@ import (
 )
 
 type generateRollUpStatementOptions struct {
-	DataBase  string
+	Database  string
 	FromTable string
 	ToTable   string
 	Duration  time.Duration
@@ -22,14 +22,17 @@ func generateRollUpStatement(opts generateRollUpStatementOptions) string {
 	timeColumnName := getTimeColumnName(opts.Columns)
 
 	return fmt.Sprintf("INSERT INTO %s.%s(%s) SELECT %s FROM %s.%s WHERE %s >= $1 AND %s < $2 GROUP BY %s",
-		opts.DataBase, opts.ToTable,
+		opts.Database,
+		opts.ToTable,
 		generateInsertColumnsStatement(opts.Columns),
 		generateRollupSelectStatement(
 			generateIntervalStatement(timeColumnName, opts.Duration),
 			opts.Columns,
 		),
-		opts.DataBase, opts.FromTable,
-		timeColumnName, timeColumnName,
+		opts.Database,
+		opts.FromTable,
+		timeColumnName,
+		timeColumnName,
 		generateGroupByStatement(opts.Columns))
 }
 
