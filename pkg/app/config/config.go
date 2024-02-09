@@ -29,11 +29,11 @@ var ErrBadConfig = errors.New("bad config")
 // Validate Config.
 func (c Config) Validate() error {
 	if c.ClickHouse.Address == "" {
-		return fmt.Errorf("address must be not empty: %w", ErrBadConfig)
+		return fmt.Errorf("address must not be empty: %w", ErrBadConfig)
 	}
 
 	if c.ClickHouse.UserName == "" {
-		return fmt.Errorf("user name must be not empty: %w", ErrBadConfig)
+		return fmt.Errorf("user name must not be empty: %w", ErrBadConfig)
 	}
 
 	for _, task := range c.Tasks {

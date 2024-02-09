@@ -34,31 +34,31 @@ var (
 // Validate RollUpOptions.
 func (opts RollUpOptions) Validate() error {
 	if opts.Database == "" {
-		return fmt.Errorf("database must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("database must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.Table == "" {
-		return fmt.Errorf("table must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("table must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.TempTable == "" {
-		return fmt.Errorf("temp table must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("tempTable must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.PartitionKey <= 0 {
-		return fmt.Errorf("partitionKey must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("partitionKey must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.Duration <= 0 {
-		return fmt.Errorf("duration must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("duration must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.After <= 0 {
-		return fmt.Errorf("after must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("after must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.Interval <= 0 {
-		return fmt.Errorf("interval must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("interval must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	for _, column := range opts.Columns {
@@ -68,7 +68,7 @@ func (opts RollUpOptions) Validate() error {
 	}
 
 	if timeColumnName := getTimeColumnName(opts.Columns); timeColumnName == "" {
-		return fmt.Errorf("you must specify time column: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("you must specify timeColumnName: %w", ErrBadRollUpOptions)
 	}
 
 	return nil
