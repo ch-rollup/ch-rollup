@@ -27,8 +27,8 @@ type taskJSON struct {
 }
 
 type rollUpSettingJSON struct {
-	RollUpAfter    duration.Duration   `json:"roll_up_after"`
-	RollUpDuration duration.Duration   `json:"roll_up_duration"`
+	NextRunAfter   duration.Duration   `json:"next_run_after"`
+	Interval       duration.Duration   `json:"interval"`
 	ColumnSettings []columnSettingJSON `json:"column_settings"`
 }
 
@@ -66,8 +66,8 @@ func bindTaskFromJSON(task taskJSON) types.Task {
 
 func bindRollUpSettingFromJSON(rollUpSetting rollUpSettingJSON) types.RollUpSetting {
 	return types.RollUpSetting{
-		RollUpAfter:    rollUpSetting.RollUpAfter.Duration,
-		RollUpDuration: rollUpSetting.RollUpDuration.Duration,
+		NextRunAfter:   rollUpSetting.NextRunAfter.Duration,
+		Interval:       rollUpSetting.Interval.Duration,
 		ColumnSettings: sliceUtils.ConvertFunc(rollUpSetting.ColumnSettings, bindColumnSettingsFromJSON),
 	}
 }
