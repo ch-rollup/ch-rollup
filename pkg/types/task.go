@@ -31,8 +31,8 @@ type Task struct {
 
 // RollUpSetting ...
 type RollUpSetting struct {
-	RollUpAfter    time.Duration
-	RollUpDuration time.Duration
+	NextRunAfter   time.Duration
+	Interval       time.Duration
 	ColumnSettings []ColumnSetting
 }
 
@@ -89,12 +89,12 @@ func (t *Task) Validate() error {
 
 // Validate RollUpSetting.
 func (rs *RollUpSetting) Validate(rollUpTimeColumnName string) error {
-	if rs.RollUpAfter <= 0 {
-		return fmt.Errorf("field RollUpAfter must be not empty")
+	if rs.Interval <= 0 {
+		return fmt.Errorf("field Interval must be not empty")
 	}
 
-	if rs.RollUpDuration <= 0 {
-		return fmt.Errorf("field RollUpDuration must be not empty")
+	if rs.NextRunAfter <= 0 {
+		return fmt.Errorf("field NextRunAfter must be not empty")
 	}
 
 	for _, columnSetting := range rs.ColumnSettings {

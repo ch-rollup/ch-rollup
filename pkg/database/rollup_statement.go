@@ -14,7 +14,7 @@ type generateRollUpStatementOptions struct {
 	DataBase  string
 	FromTable string
 	ToTable   string
-	Duration  time.Duration
+	Interval  time.Duration
 	Columns   []types.ColumnSetting
 }
 
@@ -25,7 +25,7 @@ func generateRollUpStatement(opts generateRollUpStatementOptions) string {
 		opts.DataBase, opts.ToTable,
 		generateInsertColumnsStatement(opts.Columns),
 		generateRollupSelectStatement(
-			generateIntervalStatement(timeColumnName, opts.Duration),
+			generateIntervalStatement(timeColumnName, opts.Interval),
 			opts.Columns,
 		),
 		opts.DataBase, opts.FromTable,
@@ -77,8 +77,8 @@ func generateGroupByStatement(columns []types.ColumnSetting) string {
 	)
 }
 
-func generateIntervalStatement(timeColumn string, duration time.Duration) string {
-	return fmt.Sprintf("toStartOfInterval(%s, INTERVAL %d SECOND) as %s", timeColumn, timeUtils.SecondsFromDuration(duration), timeColumn)
+func generateIntervalStatement(timeColumn string, interval time.Duration) string {
+	return fmt.Sprintf("toStartOfInterval(%s, INTERVAL %d SECOND) as %s", timeColumn, timeUtils.SecondsFromDuration(interval), timeColumn)
 }
 
 func getTimeColumnName(columns []types.ColumnSetting) string {

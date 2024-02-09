@@ -10,10 +10,10 @@ const (
 			CREATE TABLE IF NOT EXISTS rollup_meta_info(
 				database String,
 				table String,
-				after_sec UInt64,
-				duration_sec UInt64,
+				next_run_after_sec UInt64,
+				interval_sec UInt64,
 				roll_ups_at DateTime
-			) ENGINE = MergeTree() ORDER BY (database, table, after_sec, duration_sec, roll_ups_at);
+			) ENGINE = MergeTree() ORDER BY (database, table, next_run_after_sec, interval_sec, roll_ups_at);
 	`
 )
 
