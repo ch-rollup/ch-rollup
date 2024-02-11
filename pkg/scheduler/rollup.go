@@ -23,9 +23,9 @@ func (s *Scheduler) rollUp(ctx context.Context) error {
 				TempTable:    task.Table + tempTablePrefix,
 				PartitionKey: task.PartitionKey,
 				Columns:      prepareRollUpColumns(task.ColumnSettings, rollUpSetting.ColumnSettings),
-				Duration:     rollUpSetting.RollUpDuration,
-				After:        rollUpSetting.RollUpAfter,
-				Interval:     time.Hour, // TODO: add interval settings
+				Interval:     rollUpSetting.Interval,
+				NextRunAfter: rollUpSetting.NextRunAfter,
+				CopyInterval: time.Hour, // TODO: add interval settings
 			})
 			if err != nil {
 				return err

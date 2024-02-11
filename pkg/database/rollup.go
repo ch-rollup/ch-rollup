@@ -21,9 +21,9 @@ type RollUpOptions struct {
 	TempTable    string
 	PartitionKey time.Duration
 	Columns      []types.ColumnSetting
-	Duration     time.Duration
-	After        time.Duration
 	Interval     time.Duration
+	NextRunAfter time.Duration
+	CopyInterval time.Duration // TODO: rename
 }
 
 var (
@@ -49,16 +49,16 @@ func (opts RollUpOptions) Validate() error {
 		return fmt.Errorf("partitionKey must not be empty: %w", ErrBadRollUpOptions)
 	}
 
-	if opts.Duration <= 0 {
-		return fmt.Errorf("duration must not be empty: %w", ErrBadRollUpOptions)
-	}
-
-	if opts.After <= 0 {
-		return fmt.Errorf("after must not be empty: %w", ErrBadRollUpOptions)
-	}
-
 	if opts.Interval <= 0 {
 		return fmt.Errorf("interval must not be empty: %w", ErrBadRollUpOptions)
+	}
+
+	if opts.NextRunAfter <= 0 {
+		return fmt.Errorf("nextRunAfter must not be empty: %w", ErrBadRollUpOptions)
+	}
+
+	if opts.CopyInterval <= 0 {
+		return fmt.Errorf("copyInterval must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	for _, column := range opts.Columns {
@@ -97,10 +97,10 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 	}
 
 	latestRollUp, err := getLatestRollUpByKeyOnShard(ctx, shard, rollUpMetaInfoKey{
-		Database: opts.Database,
-		Table:    opts.Table,
-		After:    opts.After,
-		Duration: opts.Duration,
+		Database:     opts.Database,
+		Table:        opts.Table,
+		NextRunAfter: opts.NextRunAfter,
+		Interval:     opts.Interval,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -115,7 +115,7 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 		return err
 	}
 
-	rollUpTo := time.Now().Add(-opts.After).Truncate(opts.PartitionKey)
+	rollUpTo := time.Now().Add(-opts.NextRunAfter).Truncate(opts.PartitionKey)
 	if rollUpTo.Before(latestRollUp) {
 		return nil
 	}
@@ -135,19 +135,19 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 		Database:  opts.Database,
 		FromTable: opts.Table,
 		ToTable:   opts.TempTable,
-		Duration:  opts.Duration,
+		Interval:  opts.Interval,
 		Columns:   opts.Columns,
 	})
 
-	intervals := timeUtils.SplitTimeRangeByInterval(
+	copyIntervals := timeUtils.SplitTimeRangeByInterval(
 		timeUtils.Range{
 			From: latestRollUp,
 			To:   rollUpTo,
 		},
-		opts.Interval,
+		opts.CopyInterval,
 	)
 
-	for _, interval := range intervals {
+	for _, interval := range copyIntervals {
 		if err = shard.Exec(ctx, query, interval.From, interval.To); err != nil {
 			return err
 		}
@@ -167,10 +167,10 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 
 func createRollUpMetaInfo(ctx context.Context, shard cluster.Shard, rollUpsAt time.Time, opts RollUpOptions) error {
 	return addRollUpMetaInfoOnShard(ctx, shard, rollUpMetaInfo{
-		Database:  opts.Database,
-		Table:     opts.Table,
-		After:     opts.After,
-		Duration:  opts.Duration,
-		RollUpsAt: rollUpsAt,
+		Database:     opts.Database,
+		Table:        opts.Table,
+		NextRunAfter: opts.NextRunAfter,
+		Interval:     opts.Interval,
+		RollUpsAt:    rollUpsAt,
 	})
 }

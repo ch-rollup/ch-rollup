@@ -1,6 +1,7 @@
 package slice
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,18 +11,22 @@ func TestConvertFuncWithSkip(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
-		name  string
-		slice []string
-		want  []string
+		name      string
+		slice     []int
+		want      []string
+		skipElems map[int]struct{}
 	}
 	tests := []testCase{
 		{
 			name: "Simple",
-			slice: []string{
-				"s1", "s2", "s3",
+			slice: []int{
+				1, 2, 3,
 			},
 			want: []string{
-				"s1", "s2", "s3",
+				"1", "3",
+			},
+			skipElems: map[int]struct{}{
+				2: {},
 			},
 		},
 		{
@@ -40,8 +45,9 @@ func TestConvertFuncWithSkip(t *testing.T) {
 				t,
 				tt.want,
 				ConvertFuncWithSkip(tt.slice,
-					func(elem string) (string, bool) {
-						return elem, false
+					func(elem int) (string, bool) {
+						_, skip := tt.skipElems[elem]
+						return strconv.Itoa(elem), skip
 					},
 				),
 			)
@@ -54,17 +60,17 @@ func TestConvertFunc(t *testing.T) {
 
 	type testCase struct {
 		name  string
-		slice []string
+		slice []int
 		want  []string
 	}
 	tests := []testCase{
 		{
 			name: "Simple",
-			slice: []string{
-				"s1", "s2", "s3",
+			slice: []int{
+				1, 2, 3,
 			},
 			want: []string{
-				"s1", "s2", "s3",
+				"1", "2", "3",
 			},
 		},
 		{
@@ -83,8 +89,8 @@ func TestConvertFunc(t *testing.T) {
 				t,
 				tt.want,
 				ConvertFunc(tt.slice,
-					func(elem string) string {
-						return elem
+					func(elem int) string {
+						return strconv.Itoa(elem)
 					},
 				),
 			)
