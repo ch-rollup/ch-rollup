@@ -11,8 +11,8 @@ import (
 	"github.com/ch-rollup/ch-rollup/pkg/types"
 )
 
-// DataBase ...
-type DataBase interface {
+// Database ...
+type Database interface {
 	RollUp(ctx context.Context, opts database.RollUpOptions) error
 }
 
@@ -23,12 +23,12 @@ const (
 // Scheduler of ch-rollup.
 type Scheduler struct {
 	tasks []types.Task
-	db    DataBase
+	db    Database
 	lock  sync.RWMutex
 }
 
 // New returns new Scheduler.
-func New(ctx context.Context, db DataBase, tasks types.Tasks) (*Scheduler, error) {
+func New(ctx context.Context, db Database, tasks types.Tasks) (*Scheduler, error) {
 	if err := tasks.Validate(); err != nil {
 		return nil, err
 	}

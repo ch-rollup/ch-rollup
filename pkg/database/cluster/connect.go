@@ -18,7 +18,7 @@ type ConnectOptions struct {
 
 // Connect returns new Cluster
 func Connect(ctx context.Context, opts ConnectOptions) (*Cluster, error) {
-	conn, err := openConnection(ctx, opts.Address, opts.Username, opts.Password)
+	conn, err := connect(ctx, opts.Address, opts.Username, opts.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func openClusterShards(ctx context.Context, conn clickhouse.Conn, userName, pass
 	shards := make([]Shard, 0, len(shardsAddresses))
 
 	for _, shardAddress := range shardsAddresses {
-		conn, err = openConnection(ctx, shardAddress, userName, password)
+		conn, err = connect(ctx, shardAddress, userName, password)
 		if err != nil {
 			return nil, err
 		}
@@ -54,7 +54,7 @@ func openClusterShards(ctx context.Context, conn clickhouse.Conn, userName, pass
 	return shards, nil
 }
 
-func openConnection(ctx context.Context, address, userName, password string) (clickhouse.Conn, error) {
+func connect(ctx context.Context, address, userName, password string) (clickhouse.Conn, error) {
 	conn, err := clickhouse.Open(&clickhouse.Options{
 		Addr: []string{address},
 		Auth: clickhouse.Auth{

@@ -22,7 +22,7 @@ func (t Tasks) Validate() error {
 
 // Task ...
 type Task struct {
-	DataBase       string
+	Database       string
 	Table          string
 	PartitionKey   time.Duration
 	RollUpSettings []RollUpSetting
@@ -47,15 +47,15 @@ type ColumnSetting struct {
 // Validate Task.
 func (t *Task) Validate() error {
 	if t.Table == "" {
-		return fmt.Errorf("field Table must be not empty")
+		return fmt.Errorf("table must not be empty")
 	}
 
-	if t.DataBase == "" {
-		return fmt.Errorf("field DataBase must be not empty")
+	if t.Database == "" {
+		return fmt.Errorf("database must not be empty")
 	}
 
 	if t.PartitionKey <= 0 {
-		return fmt.Errorf("field PartitionKey must be not empty")
+		return fmt.Errorf("partitionKey must not be empty")
 	}
 
 	var rollUpTimeColumnName string
@@ -67,7 +67,7 @@ func (t *Task) Validate() error {
 
 		if columnSetting.IsRollUpTime {
 			if rollUpTimeColumnName != "" {
-				return fmt.Errorf("there should only be one rollUp time column")
+				return fmt.Errorf("only one rollUpTime column allowed")
 			}
 
 			rollUpTimeColumnName = columnSetting.Name
@@ -75,7 +75,7 @@ func (t *Task) Validate() error {
 	}
 
 	if rollUpTimeColumnName == "" {
-		return fmt.Errorf("rollup time column must be defined")
+		return fmt.Errorf("rollupTimeColumn must not be empty")
 	}
 
 	for _, rollUpSetting := range t.RollUpSettings {
@@ -90,11 +90,11 @@ func (t *Task) Validate() error {
 // Validate RollUpSetting.
 func (rs *RollUpSetting) Validate(rollUpTimeColumnName string) error {
 	if rs.Interval <= 0 {
-		return fmt.Errorf("field Interval must be not empty")
+		return fmt.Errorf("interval must not be empty")
 	}
 
 	if rs.NextRunAfter <= 0 {
-		return fmt.Errorf("field NextRunAfter must be not empty")
+		return fmt.Errorf("nextRunAfter must not be empty")
 	}
 
 	for _, columnSetting := range rs.ColumnSettings {
@@ -103,7 +103,7 @@ func (rs *RollUpSetting) Validate(rollUpTimeColumnName string) error {
 		}
 
 		if columnSetting.IsRollUpTime || columnSetting.Name == rollUpTimeColumnName {
-			return fmt.Errorf("roll up time collumn can be defined only in global settings")
+			return fmt.Errorf("rollUpTime column can be defined only in global settings")
 		}
 	}
 
@@ -113,7 +113,7 @@ func (rs *RollUpSetting) Validate(rollUpTimeColumnName string) error {
 // Validate ColumnSetting.
 func (cs *ColumnSetting) Validate() error {
 	if cs.Name == "" {
-		return fmt.Errorf("field Name must be not empty")
+		return fmt.Errorf("name must not be empty")
 	}
 
 	return nil

@@ -19,7 +19,7 @@ type configJSON struct {
 }
 
 type taskJSON struct {
-	DataBase       string              `json:"database"`
+	Database       string              `json:"database"`
 	Table          string              `json:"table"`
 	PartitionKey   duration.Duration   `json:"partition_key"`
 	RollUpSettings []rollUpSettingJSON `json:"roll_up_settings"`
@@ -56,7 +56,7 @@ func bindClickHouseFromJSON(clickHouse clickHouseJSON) config.ClickHouse {
 
 func bindTaskFromJSON(task taskJSON) types.Task {
 	return types.Task{
-		DataBase:       task.DataBase,
+		Database:       task.Database,
 		Table:          task.Table,
 		PartitionKey:   task.PartitionKey.Duration,
 		RollUpSettings: sliceUtils.ConvertFunc(task.RollUpSettings, bindRollUpSettingFromJSON),

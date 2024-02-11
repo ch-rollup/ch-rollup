@@ -16,7 +16,7 @@ import (
 
 // RollUpOptions ...
 type RollUpOptions struct {
-	DataBase     string
+	Database     string
 	Table        string
 	TempTable    string
 	PartitionKey time.Duration
@@ -28,37 +28,37 @@ type RollUpOptions struct {
 
 var (
 	// ErrBadRollUpOptions ...
-	ErrBadRollUpOptions = errors.New("bad ErrBadRollUpOptions")
+	ErrBadRollUpOptions = errors.New("invalid rollup options")
 )
 
 // Validate RollUpOptions.
 func (opts RollUpOptions) Validate() error {
-	if opts.DataBase == "" {
-		return fmt.Errorf("data base must be not empty: %w", ErrBadRollUpOptions)
+	if opts.Database == "" {
+		return fmt.Errorf("database must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.Table == "" {
-		return fmt.Errorf("table must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("table must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.TempTable == "" {
-		return fmt.Errorf("temp table must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("tempTable must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.PartitionKey <= 0 {
-		return fmt.Errorf("PartitionKey must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("partitionKey must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.Interval <= 0 {
-		return fmt.Errorf("interval must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("interval must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.NextRunAfter <= 0 {
-		return fmt.Errorf("nextRunAfter must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("nextRunAfter must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	if opts.CopyInterval <= 0 {
-		return fmt.Errorf("copyInterval must be not empty: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("copyInterval must not be empty: %w", ErrBadRollUpOptions)
 	}
 
 	for _, column := range opts.Columns {
@@ -68,7 +68,7 @@ func (opts RollUpOptions) Validate() error {
 	}
 
 	if timeColumnName := getTimeColumnName(opts.Columns); timeColumnName == "" {
-		return fmt.Errorf("you must specify time column: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("you must specify column with isRollUpTime option: %w", ErrBadRollUpOptions)
 	}
 
 	return nil
@@ -77,7 +77,7 @@ func (opts RollUpOptions) Validate() error {
 // RollUp Database with RollUpOptions.
 func (db *Database) RollUp(ctx context.Context, opts RollUpOptions) error {
 	if err := opts.Validate(); err != nil {
-		return fmt.Errorf("fail to validate RollUpOptions: %w", err)
+		return fmt.Errorf("failed to validate options: %w", err)
 	}
 
 	for _, shard := range db.cluster.GetShards() {
@@ -93,11 +93,11 @@ func (db *Database) RollUp(ctx context.Context, opts RollUpOptions) error {
 // RollUpShard cluster.Shard with RollUpOptions.
 func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (err error) {
 	if err = opts.Validate(); err != nil {
-		return fmt.Errorf("fail to validate RollUpOptions: %w", err)
+		return fmt.Errorf("failed to validate options: %w", err)
 	}
 
 	latestRollUp, err := getLatestRollUpByKeyOnShard(ctx, shard, rollUpMetaInfoKey{
-		DataBase:     opts.DataBase,
+		Database:     opts.Database,
 		Table:        opts.Table,
 		NextRunAfter: opts.NextRunAfter,
 		Interval:     opts.Interval,
@@ -120,19 +120,19 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 		return nil
 	}
 
-	if err = createTableAsOnShard(ctx, shard, opts.DataBase, opts.Table, opts.TempTable); err != nil {
+	if err = createTableAsOnShard(ctx, shard, opts.Database, opts.Table, opts.TempTable); err != nil {
 		return err
 	}
 
 	defer func() {
-		if dropErr := dropTableOnShard(ctx, shard, opts.DataBase, opts.TempTable); dropErr != nil {
+		if dropErr := dropTableOnShard(ctx, shard, opts.Database, opts.TempTable); dropErr != nil {
 			err = multierr.Append(err, dropErr)
 		}
 	}()
 
 	// need from (latestRollUp) / to (rollUpTo) / interval (opts)
 	query := generateRollUpStatement(generateRollUpStatementOptions{
-		DataBase:  opts.DataBase,
+		Database:  opts.Database,
 		FromTable: opts.Table,
 		ToTable:   opts.TempTable,
 		Interval:  opts.Interval,
@@ -153,13 +153,13 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 		}
 	}
 
-	partitions, err := getPartitionsOnShard(ctx, shard, opts.DataBase, opts.TempTable)
+	partitions, err := getPartitionsOnShard(ctx, shard, opts.Database, opts.TempTable)
 	if err != nil {
-		return fmt.Errorf("fail to get %s.%s partitions: %w", opts.DataBase, opts.Table, err)
+		return fmt.Errorf("failed to get %s.%s partitions: %w", opts.Database, opts.Table, err)
 	}
 
-	if err = replacePartitionsOnShard(ctx, shard, opts.DataBase, opts.TempTable, opts.Table, partitions); err != nil {
-		return fmt.Errorf("fail to replace partitions from %s.%s to %s.%s: %w", opts.DataBase, opts.TempTable, opts.DataBase, opts.Table, err)
+	if err = replacePartitionsOnShard(ctx, shard, opts.Database, opts.TempTable, opts.Table, partitions); err != nil {
+		return fmt.Errorf("failed to replace partitions from %s.%s to %s.%s: %w", opts.Database, opts.TempTable, opts.Database, opts.Table, err)
 	}
 
 	return createRollUpMetaInfo(ctx, shard, rollUpTo, opts)
@@ -167,7 +167,7 @@ func RollUpShard(ctx context.Context, shard cluster.Shard, opts RollUpOptions) (
 
 func createRollUpMetaInfo(ctx context.Context, shard cluster.Shard, rollUpsAt time.Time, opts RollUpOptions) error {
 	return addRollUpMetaInfoOnShard(ctx, shard, rollUpMetaInfo{
-		DataBase:     opts.DataBase,
+		Database:     opts.Database,
 		Table:        opts.Table,
 		NextRunAfter: opts.NextRunAfter,
 		Interval:     opts.Interval,

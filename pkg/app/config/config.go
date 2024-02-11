@@ -18,7 +18,9 @@ type ClickHouse struct {
 // Config ...
 type Config struct {
 	ClickHouse ClickHouse
-	Tasks      []types.Task
+
+	// TODO: rename this field and underlying type coz they're misleads the end user.
+	Tasks []types.Task
 }
 
 // ErrBadConfig ...
@@ -27,11 +29,11 @@ var ErrBadConfig = errors.New("bad config")
 // Validate Config.
 func (c Config) Validate() error {
 	if c.ClickHouse.Address == "" {
-		return fmt.Errorf("address must be not empty: %w", ErrBadConfig)
+		return fmt.Errorf("address must not be empty: %w", ErrBadConfig)
 	}
 
 	if c.ClickHouse.UserName == "" {
-		return fmt.Errorf("user name must be not empty: %w", ErrBadConfig)
+		return fmt.Errorf("user name must not be empty: %w", ErrBadConfig)
 	}
 
 	for _, task := range c.Tasks {

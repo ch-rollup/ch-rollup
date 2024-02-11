@@ -18,7 +18,7 @@ func (s *Scheduler) rollUp(ctx context.Context) error {
 	for _, task := range s.getTasks() {
 		for _, rollUpSetting := range task.RollUpSettings {
 			err := s.db.RollUp(ctx, database.RollUpOptions{
-				DataBase:     task.DataBase,
+				Database:     task.Database,
 				Table:        task.Table,
 				TempTable:    task.Table + tempTablePrefix,
 				PartitionKey: task.PartitionKey,
