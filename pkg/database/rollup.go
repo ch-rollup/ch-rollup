@@ -68,7 +68,7 @@ func (opts RollUpOptions) Validate() error {
 	}
 
 	if timeColumnName := getTimeColumnName(opts.Columns); timeColumnName == "" {
-		return fmt.Errorf("you must specify timeColumnName: %w", ErrBadRollUpOptions)
+		return fmt.Errorf("you must specify column with isRollUpTime option: %w", ErrBadRollUpOptions)
 	}
 
 	return nil
