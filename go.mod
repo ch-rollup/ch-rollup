@@ -6,7 +6,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.18.0
 	github.com/alvaroloes/enumer v1.1.2
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 )
